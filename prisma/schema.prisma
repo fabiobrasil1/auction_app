@@ -1,0 +1,55 @@
+// Definição do banco de dados
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_URL")
+}
+
+//generator
+generator client {
+  provider = "prisma-client-js"
+  output   = "node_modules/.prisma/client"
+}
+
+
+
+// Definição do modelo User
+model User {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String    @unique
+  password String
+  auctions Auction[] // relação com Auction
+  bids     Bid[] // relação com Bid
+
+  @@map("users")
+}
+
+// Definição do modelo Auction
+model Auction {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  brand            String
+  model            String
+  year             Int
+  startingBid      Float
+  auctionStartDate DateTime
+  auctionEndDate   DateTime
+  creator          User     @relation(fields: [creatorId], references: [id])
+  creatorId        String
+  bids             Bid[] // relação com Bid
+
+   @@map("auctions")
+}
+
+// Definição do modelo Bid
+model Bid {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  amount    Float
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  auction   Auction @relation(fields: [auctionId], references: [id])
+  auctionId String
+
+   @@map("bids")
+}
+
+
